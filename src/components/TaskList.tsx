@@ -3,7 +3,7 @@ import { useState, version } from 'react'
 import '../styles/tasklist.scss'
 
 import { FiTrash, FiCheckSquare } from 'react-icons/fi'
-import { BiAddToQueue } from 'react-icons/Bi'
+import { BiAddToQueue } from 'react-icons/bi'
 
 interface Task {
   id: number;
