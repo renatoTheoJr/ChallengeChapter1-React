@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, version } from 'react'
 
 import '../styles/tasklist.scss'
 
 import { FiTrash, FiCheckSquare } from 'react-icons/fi'
+import { BiAddToQueue } from 'react-icons/Bi'
 
 interface Task {
   id: number;
@@ -13,34 +14,73 @@ interface Task {
 export function TaskList() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [mensageError, setMensageError] = useState('')
+
+  function isNullOrWhitespace( input:String ) {
+
+    if (typeof input === 'undefined' || input == null) return true;
+
+    return input.replace(/\s/g, '').length < 1;
+  }
 
   function handleCreateNewTask() {
-    // Crie uma nova task com um id random, não permita criar caso o título seja vazio.
+        if(isNullOrWhitespace(newTaskTitle)){
+          setMensageError("Please type something");
+          return;
+        }
+        if(tasks.length === 1000){
+          setMensageError("Task limit reached");
+          return;
+        }
+        setMensageError("");
+
+
+        let randomNumber = Number(Math.floor(Math.random() * (1000 - 1)) + 1);
+        while(tasks.find( task => task.id === randomNumber )){
+          randomNumber = Number(Math.floor(Math.random() * (1000 - 1)) + 1);
+        }
+
+        setTasks([...tasks, {
+          id: randomNumber,
+          title: newTaskTitle,
+          isComplete: false
+        }])
   }
 
   function handleToggleTaskCompletion(id: number) {
-    // Altere entre `true` ou `false` o campo `isComplete` de uma task com dado ID
+    const task =tasks.filter((task)=>{
+      if(task.id === id){
+        task.isComplete = !task.isComplete;               
+      }
+      return task;
+    });
+    setTasks(task);      
   }
 
   function handleRemoveTask(id: number) {
-    // Remova uma task da listagem pelo ID
+    setTasks(tasks.filter(function(task) { 
+      return task.id !== id
+      }));
   }
 
   return (
     <section className="task-list container">
       <header>
-        <h2>Minhas tasks</h2>
+        <h2>My tasks</h2>
 
         <div className="input-group">
-          <input 
-            type="text" 
-            placeholder="Adicionar novo todo" 
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            value={newTaskTitle}
-          />
-          <button type="submit" data-testid="add-task-button" onClick={handleCreateNewTask}>
-            <FiCheckSquare size={16} color="#fff"/>
-          </button>
+          <div>
+            <input 
+              type="text" 
+              placeholder="Adicionar novo todo" 
+              onChange={(e) => setNewTaskTitle(e.target.value)}
+              value={newTaskTitle}
+            />
+            <button type="submit" data-testid="add-task-button" onClick={handleCreateNewTask}>
+              <BiAddToQueue size={16} color="#fff" />
+            </button>
+          </div>
+          <p>{mensageError}</p>
         </div>
       </header>
 
